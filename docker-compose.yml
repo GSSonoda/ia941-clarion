@@ -8,10 +8,16 @@ services:
     network_mode: "host"
     working_dir: /home/${USER}
     entrypoint: /bin/bash
+    command: >
+      -c "
+      echo Starting monodevelop from docker;
+      if ! getent group ${GROUP_ID} > /dev/null; then groupadd -g ${GROUP_ID} ${USER}; fi;
+      useradd -r -d /home/${USER} -s /bin/bash -g $(id -gn) -G sudo -u ${USER_ID} ${USER};
+      su -c '/launch.sh ${DISPLAY}' ${USER}"
+    environment:
+      - DISPLAY=${DISPLAY}
     volumes:
       - .:/home/${USER}
       - /tmp:/tmp
-    environment:
-      - DISPLAY=${DISPLAY}
     stdin_open: true
     tty: true
