@@ -15,9 +15,25 @@ services:
       useradd -r -d /home/${USER} -s /bin/bash -g $(id -gn) -G sudo -u ${USER_ID} ${USER};
       su -c '/launch.sh ${DISPLAY}' ${USER}"
     environment:
-      - DISPLAY=${DISPLAY}
+      - DISPLAY=:0
     volumes:
       - .:/home/${USER}
       - /tmp:/tmp
+      - ${XAUTHORITY}:/root/.Xauthority
     stdin_open: true
+    tty: true
+
+  coppelia-sim:
+    image: brgsil/ws3d-coppelia
+    container_name: coppelia-sim
+    network_mode: "host"
+    privileged: true
+    devices:
+      - "/dev/snd"
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - ${XAUTHORITY}:/root/.Xauthority
+    ports:
+      - "4011:4011"
     tty: true
