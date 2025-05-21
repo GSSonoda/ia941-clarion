@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  monodevelop:
+    image: zachdeibert/monodevelop
+    container_name: monodevelop
+    hostname: monodevelop
+    network_mode: "host"
+    working_dir: /home/${USER}
+    entrypoint: /bin/bash
+    volumes:
+      - .:/home/${USER}
+      - /tmp:/tmp
+    environment:
+      - DISPLAY=${DISPLAY}
+    stdin_open: true
+    tty: true
