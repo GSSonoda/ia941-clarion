@@ -640,7 +640,6 @@ namespace ClarionApp
 
                 // Read the response
                 String response = ReadMessage();
-
                 // Parse the response
                 returnDic = ParseGetCreatureStateResponse(response, new String[]{"||"} );
             }
@@ -1276,6 +1275,83 @@ namespace ClarionApp
             {
                 throw new WorldServerErrorProcessingResponse("Could not evaluate property: " + propertyName);
             }
+        }
+        public string SendMoveTo(string creatureId, double vr, double vl, double x, double y)
+        {
+            String response = String.Empty;
+
+            try
+            {
+                // Prepare the message
+                StringBuilder builder = new StringBuilder();
+                builder.Append("setGoTo ");
+                builder.Append(creatureId);
+                builder.Append(" ");
+                builder.Append(vr);
+                builder.Append(" ");
+                builder.Append(vl);
+                builder.Append(" ");
+                builder.Append(x);
+                builder.Append(" ");
+                builder.Append(y);
+
+                // Send Message
+                SendMessage(builder.ToString());
+
+                // Read the response
+                response = ReadMessage();
+            }
+            catch (WorldServerConnectionError connEx)
+            {
+                throw connEx;
+            }
+            catch (WorldServerSendError sendEx)
+            {
+                throw sendEx;
+            }
+            catch (WorldServerReadError readEx)
+            {
+                throw readEx;
+            }
+            catch (Exception e)
+            {
+                throw new WorldServerSendError("Error while sending message", e);
+            }
+            return response;
+        }
+
+        public string DeliverLeaflet(string creaturedId, Int32 leafletId)
+        {
+            String response = String.Empty;
+            String brickName = String.Empty;
+
+            try
+            {
+                // Prepare the message
+                StringBuilder builder = new StringBuilder();
+                builder.Append("deliver ");
+                builder.Append(creaturedId);
+                builder.Append(" ");
+                builder.Append(leafletId);
+
+                // Send Message
+                SendMessage(builder.ToString());
+
+                // Read the response
+                response = ReadMessage();
+
+                if (!String.IsNullOrWhiteSpace(response))
+                {
+                    string[] tokens = response.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    brickName = (tokens != null && tokens.Length > 1) ? tokens[1] : null;
+                }
+
+                return brickName;
+            }
+            catch (WorldServerConnectionError connEx) { throw connEx; }
+            catch (WorldServerSendError sendEx) { throw sendEx; }
+            catch (WorldServerReadError readEx) { throw readEx; }
+            catch (Exception e) { throw new WorldServerSendError("Error while sending message", e); }
         }
 
         #endregion
