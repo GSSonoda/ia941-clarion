@@ -10,7 +10,6 @@
     <RootNamespace>ClarionApp</RootNamespace>
     <AssemblyName>ClarionApp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ReleaseVersion>0.8</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -40,6 +39,10 @@
     <Compile Include="WSProxy.cs" />
     <Compile Include="MindViewer.cs" />
     <Compile Include="gtk-gui\ClarionApp.MindViewer.cs" />
+    <Compile Include="Model\Move.cs" />
+    <Compile Include="Model\Memory.cs" />
+    <Compile Include="Model\Get.cs" />
+    <Compile Include="Model\Deliver.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ClarionLibrary">
