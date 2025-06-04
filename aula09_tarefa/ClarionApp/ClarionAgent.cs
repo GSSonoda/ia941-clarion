@@ -47,6 +47,7 @@ namespace ClarionApp
 		String creatureId = String.Empty;
 		String creatureName = String.Empty;
         public Memory memory;
+        private Get getOperator;
         private Deliver deliver;
         #region Simulation
         /// <summary>
@@ -99,6 +100,7 @@ namespace ClarionApp
 		private ExternalActionChunk outputGoAhead;
         private ExternalActionChunk outputMove;
         private ExternalActionChunk outputGet;
+        private ExternalActionChunk outputEatFood;
         private ExternalActionChunk outputDeliver;
         #endregion
 
@@ -117,6 +119,7 @@ namespace ClarionApp
 
             memory = new Memory(worldServer, creatureName);
             deliver = new Deliver(worldServer, creatureId);
+            getOperator = new Get(worldServer, creatureId);
 
             // Initialize Input Information
             inputWallAhead = World.NewDimensionValuePair(SENSOR_VISUAL_DIMENSION, DIMENSION_WALL_AHEAD);
@@ -132,6 +135,8 @@ namespace ClarionApp
             outputGoAhead = World.NewExternalActionChunk(CreatureActions.GO_AHEAD.ToString());
             outputMove = World.NewExternalActionChunk(CreatureActions.MOVE.ToString());
             outputGet = World.NewExternalActionChunk(CreatureActions.GET.ToString());
+            outputEatFood = World.NewExternalActionChunk(CreatureActions.GET.ToString());
+
             outputDeliver = World.NewExternalActionChunk(CreatureActions.DELIVER.ToString());
 
             //Create thread to simulation
@@ -209,9 +214,8 @@ namespace ClarionApp
                     move.DoAction();
                     break;
                 case CreatureActions.GET:
-                    Get get = new Get(worldServer, memory.GetJewels(), creatureId);
-                    get.DoAction();
-                    memory.Remove(get.GetThing());
+                    getOperator.DoAction();
+                    memory.Remove(getOperator.GetThing());
                     break;
                 case CreatureActions.DELIVER:
                     deliver.DoAction();
@@ -275,6 +279,10 @@ namespace ClarionApp
             FixedRule ruleDeliverLeaflet = AgentInitializer.InitializeActionRule(CurrentAgent, FixedRule.Factory, outputDeliver, deliverLeafletSupport);
             CurrentAgent.Commit(ruleDeliverLeaflet);
 
+            SupportCalculator getFoodSupport = FixedRuleToGetFood;
+            FixedRule ruleGetFood = AgentInitializer.InitializeActionRule(CurrentAgent, FixedRule.Factory, outputEatFood, getFoodSupport);
+            CurrentAgent.Commit(ruleGetFood);
+
             // Disable Rule Refinement
             CurrentAgent.ACS.Parameters.PERFORM_RER_REFINEMENT = false;
 
@@ -323,22 +331,28 @@ namespace ClarionApp
             Leaflet leafletToDeliver = c.getLeaflets().FirstOrDefault(l => l.IsComplete());
             deliver.UpdateCompleteLeaflet(leafletToDeliver);
 
-            Console.WriteLine("CANCOMPLETE " + canComplete);
-            Console.WriteLine("deliver.leaflet " + deliver.GetLeaflet());
+
 
             // SI FOOD
-            bool foodAhead = listOfThings.Any(item =>
-                        (item.CategoryId == Thing.CATEGORY_FOOD ||
-                        item.CategoryId == Thing.categoryPFOOD ||
-                        item.CategoryId == Thing.CATEGORY_NPFOOD) &&
-                        item.DistanceToCreature <= 20);
+            bool foodAhead = memory.GetFoods().Any(item => item.DistanceToCreature <= 20);
             double foodAheadActivationValue = foodAhead ? CurrentAgent.Parameters.MAX_ACTIVATION : CurrentAgent.Parameters.MIN_ACTIVATION;
             si.Add(inputFoodAhead, foodAheadActivationValue);
+
+            // TO DO Edit this rule about food
+            double inputHasFoodInMemoryValue = CurrentAgent.Parameters.MIN_ACTIVATION;
+            si.Add(inputHasFoodInMemory, inputHasFoodInMemoryValue);
+
+            if (foodAhead)
+            {
+                Console.WriteLine("foodAhead " + foodAhead);
+                Console.WriteLine("memoryFood " + memory.GetFoods().Count);
+
+            }
 
             // SI JEWEL
             double jewelInMemoryActivationValue = memory.GetJewels().Any() ? CurrentAgent.Parameters.MAX_ACTIVATION : CurrentAgent.Parameters.MIN_ACTIVATION;
             si.Add(inputHasJewelInMemory, jewelInMemoryActivationValue);
-            bool jewelAhead = listOfThings.Any(item =>
+            bool jewelAhead = memory.GetJewels().Any(item =>
                 item.CategoryId == Thing.CATEGORY_JEWEL &&
                 item.DistanceToCreature <= 20);
             if (jewelAhead)
@@ -346,6 +360,8 @@ namespace ClarionApp
                 // Ativa o input apenas se a joia estiver próxima E não coletada
                 double jewelAheadActivationValue = CurrentAgent.Parameters.MAX_ACTIVATION;
                 si.Add(inputJewelAhead, jewelAheadActivationValue);
+                Console.WriteLine("jewelAhead " + jewelAhead);
+                Console.WriteLine("memory. " + memory.GetJewels().Count);
             }
             else
             {
@@ -407,6 +423,10 @@ namespace ClarionApp
         {
             return (currentInput.Contains(inputCanCompleteLeaflet, CurrentAgent.Parameters.MAX_ACTIVATION)) ? 1.0 : 0.0;
         }
+        private double FixedRuleToGetFood(ActivationCollection currentInput, Rule target)
+        {
+            return (currentInput.Contains(inputFoodAhead, CurrentAgent.Parameters.MAX_ACTIVATION)) ? 1.0 : 0.0;
+        }
         #endregion
 
         #region Run Thread Method
@@ -421,6 +441,7 @@ namespace ClarionApp
                 IList<Thing> currentSceneInWS3D = processSensoryInformation();
 
                 this.memory.UpdateJewelAndFoodList(currentSceneInWS3D);
+                this.getOperator.UpdateNearestThing(this.memory.GetFoodsJewels());
 
                 // Make the perception
                 SensoryInformation si = prepareSensoryInformation(currentSceneInWS3D);
@@ -454,7 +475,7 @@ namespace ClarionApp
 
             }
         }
-
+        #endregion
         /// <summary>
         /// Thread que cria joias continuamente.
         /// </summary>
@@ -493,6 +514,6 @@ namespace ClarionApp
             }
 
         }
-    #endregion
+    
     }
 }

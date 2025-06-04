@@ -24,7 +24,6 @@ namespace ClarionApp.Model
             {
                 if (thing.CategoryId == 21 || thing.CategoryId == 2 || thing.CategoryId == 22)
                 {
-                    // Verifica se já foi coletado OU se já está na memória
                     if (!memoryFood.Any(t => t.Name == thing.Name))
                     {
                         memoryFood.Add(thing);
@@ -76,9 +75,29 @@ namespace ClarionApp.Model
         {
             return memoryJewel;
         }
+        public IList<Thing> GetFoods()
+        {
+            return memoryFood;
+        }
+
+        public IList<Thing> GetFoodsJewels()
+        {
+            List<Thing> all = new List<Thing>();
+            all.AddRange(memoryJewel);
+            all.AddRange(memoryFood);
+            return all;
+        }
         public void Remove(Thing thing_to_remove)
         {
-            memoryJewel.Remove(thing_to_remove);
+            if (thing_to_remove.CategoryId == 3)
+            {
+                memoryJewel.Remove(thing_to_remove);
+            }
+            if (thing_to_remove.CategoryId == 22 || thing_to_remove.CategoryId == 21 || thing_to_remove.CategoryId == 2)
+            {
+                memoryFood.Remove(thing_to_remove);
+            }
+
         }
     }
 }
