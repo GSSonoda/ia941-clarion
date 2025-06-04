@@ -46,9 +46,6 @@ namespace ClarionApp
                     ws.NewBrick(4, 49, 562, 796, 599);
                     ws.NewBrick(4, -2, 6, 50, 599);
 
-                    // Inicia thread para spawn contínuo de joias
-                    Thread jewelSpawner = new Thread(new ThreadStart(SpawnJewelsContinuously));
-                    jewelSpawner.Start();
 
                     if (!String.IsNullOrWhiteSpace(creatureId))
                     {
@@ -84,38 +81,6 @@ namespace ClarionApp
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Thread que cria joias continuamente.
-        /// </summary>
-        private void SpawnJewelsContinuously()
-        {
-            // Limites do mapa (ajuste conforme seu cenário)
-            int minX = 60;
-            int maxX = 740;
-            int minY = 60;
-            int maxY = 540;
-
-            while (keepSpawningJewels)
-            {
-                int x = random.Next(minX, maxX);
-                int y = random.Next(minY, maxY);
-                int jewelType = random.Next(1, 5);
-
-                try
-                {
-                    ws.NewJewel(jewelType, x, y);
-                    Console.Out.WriteLine($"[SPAWN] Jewel type {jewelType} created at ({x},{y})");
-                }
-                catch (Exception e)
-                {
-                    Console.Out.WriteLine($"[ERROR] Failed to create jewel at ({x},{y}): {e.Message}");
-                }
-
-                // Espera antes de criar a próxima (ex.: 5 segundos)
-                Thread.Sleep(5000);
-            }
-        }
 
         public static void Main(string[] args)
         {

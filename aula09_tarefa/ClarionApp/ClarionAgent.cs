@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
@@ -309,9 +309,39 @@ namespace ClarionApp
                 {
                     Thread.Sleep(TimeBetweenCognitiveCycles);
                 }
-			}
-        }
-        #endregion
+                if (Math.Abs(CurrentCognitiveCycle % 1000) < 0.00001)
+                {
+                    SpawnJewels();
+                }
 
+            }
+        }
+
+        /// <summary>
+        /// Thread que cria joias continuamente.
+        /// </summary>
+        private void SpawnJewels()
+        {
+            // Limites do mapa (ajuste conforme seu cenário)
+            int minX = 60;
+            int maxX = 500;
+            int minY = 60;
+            int maxY = 500;
+
+            int x = random.Next(minX, maxX);
+            int y = random.Next(minY, maxY);
+            int jewelType = random.Next(0, 6);
+
+            try
+            {
+                worldServer.NewJewel(jewelType, x, y);
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteLine($"[ERROR] Failed to create jewel at ({x},{y}): {e.Message}");
+            }
+
+        }
+    #endregion
     }
 }
