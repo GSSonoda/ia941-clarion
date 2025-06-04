@@ -468,10 +468,10 @@ namespace ClarionApp
                 {
                     Thread.Sleep(TimeBetweenCognitiveCycles);
                 }
-                if (Math.Abs(CurrentCognitiveCycle % 1000) < 0.00001)
-                {
-                    SpawnThings();
-                }
+                //if (Math.Abs(CurrentCognitiveCycle % 1000) < 0.00001)
+                //{
+                //    SpawnThings();
+                //}
 
             }
         }
