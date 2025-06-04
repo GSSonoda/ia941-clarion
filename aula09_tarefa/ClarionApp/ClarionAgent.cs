@@ -449,7 +449,7 @@ namespace ClarionApp
                 }
                 if (Math.Abs(CurrentCognitiveCycle % 1000) < 0.00001)
                 {
-                    SpawnJewels();
+                    SpawnThings();
                 }
 
             }
@@ -458,7 +458,7 @@ namespace ClarionApp
         /// <summary>
         /// Thread que cria joias continuamente.
         /// </summary>
-        private void SpawnJewels()
+        private void SpawnThings()
         {
             // Limites do mapa (ajuste conforme seu cenário)
             int minX = 60;
@@ -466,17 +466,30 @@ namespace ClarionApp
             int minY = 60;
             int maxY = 500;
 
-            int x = random.Next(minX, maxX);
-            int y = random.Next(minY, maxY);
+
             int jewelType = random.Next(0, 6);
+            int foodType = random.Next(0, 1);
 
             try
             {
+                int x = random.Next(minX, maxX);
+                int y = random.Next(minY, maxY);
                 worldServer.NewJewel(jewelType, x, y);
             }
             catch (Exception e)
             {
-                Console.Out.WriteLine($"[ERROR] Failed to create jewel at ({x},{y}): {e.Message}");
+                Console.Out.WriteLine($"[ERROR] Failed to create jewel: {e.Message}");
+            }
+
+            try
+            {
+                int x = random.Next(minX, maxX);
+                int y = random.Next(minY, maxY);
+                worldServer.NewFood(foodType, x, y);
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteLine($"[ERROR] Failed to create food): {e.Message}");
             }
 
         }
