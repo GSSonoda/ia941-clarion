@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace ClarionApp.Model
 {
-	public class Leaflet
-	{
-		public Leaflet ()
-		{
-		}
+    public class Leaflet
+    {
+        public Leaflet()
+        {
+        }
 
-		public Int64 leafletID { get; set; }
-		public Int32 NumberOfLeafletItems { get; set; }
-		public List<LeafletItem> items { get; set; }
-		public Int32 payment { get; set; }
-		public Boolean situation { get; set; }
+        public Int64 leafletID { get; set; }
+        public Int32 NumberOfLeafletItems { get; set; }
+        public List<LeafletItem> items { get; set; }
+        public Int32 payment { get; set; }
+        public Boolean situation { get; set; }
 
-		public void PrintLeaflet(int k) {
+        public void PrintLeaflet(int k) {
 			Console.Write("ID: "+leafletID+" ");
 			foreach (LeafletItem li in items) {
 			    Console.Write(li.itemKey+" "+li.totalNumber+" "+li.collected+" ");
@@ -63,7 +63,21 @@ namespace ClarionApp.Model
 			}
 			return(m);
 		}
-	}
-	
+        public bool IsComplete()
+        {
+            if (items == null || items.Count == 0)
+                return false;
+
+            foreach (LeafletItem item in items)
+            {
+                if (item.collected < item.totalNumber)
+                    return false;
+            }
+
+            return true;
+        }
+
+    }
+
 }
 
